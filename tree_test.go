@@ -112,6 +112,19 @@ func TestLookupSomethingReal(t *testing.T) {
 	}
 }
 
+func TestAddToExistingKey(t *testing.T) {
+	subject := NewTree(parsers.SplitterParser("/"), matchers.RawMatcher())
+
+	subject.Add("a/b/c", "c")
+	subject.Add("a/b/c", "d")
+
+	c := subject.Lookup("a/b/c")
+
+	if c != "d" {
+		t.Errorf("expected c to be d but was %s\n", c)
+	}
+}
+
 func verifyNode(node *node, name, ref string, childCount int, t *testing.T) {
 	if node.name != name {
 		t.Errorf("expected %s.name to be '%s' but was '%s'\n", name, name, node.name)

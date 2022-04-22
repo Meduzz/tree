@@ -23,11 +23,11 @@ func TestSomeMatching(t *testing.T) {
 		t.Error("expected wildcard to match k1")
 	}
 
-	if !subject("*", "a_lot-of-sp3ciul_ch4r5") {
+	if !subject("*", "a_lot-of-sp3ciul_ch4r5.weird!") {
 		t.Error("expected wildcard to match speciul text")
 	}
 
-	if subject("*", "!@+=*") {
+	if subject("*", "@+=*,&?/") {
 		t.Error("did not expect wildcard to match unsafe chars")
 	}
 }

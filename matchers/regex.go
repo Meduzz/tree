@@ -5,7 +5,7 @@ import (
 )
 
 // safe..ish chars for urls
-const UrlSafe = "[a-zA-Z0-9-_%]+"
+const UrlSafe = "[a-zA-Z0-9-_%.!]+"
 
 // RegexMatcher first checks if k1 == wildcard, then uses regex to match on k2, otherwise checks k1 == k2.
 func RegexMatcher(wildcard, regex string) func(string, string) bool {
