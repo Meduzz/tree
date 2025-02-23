@@ -7,4 +7,4 @@
 
 I dont care about lightning speed. I dont care about memory consumtion, I only want my tree.
 
-PS. note that the regex parser will panic on a bad pattern. xoxo
+PS. note that the regex parser no longer panics on a bad pattern.

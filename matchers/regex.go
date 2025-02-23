@@ -8,12 +8,11 @@ import (
 const UrlSafe = "[a-zA-Z0-9-_%.!]+"
 
 // RegexMatcher first checks if k1 == wildcard, then uses regex to match on k2, otherwise checks k1 == k2.
-func RegexMatcher(wildcard, regex string) func(string, string) bool {
+func RegexMatcher(wildcard, regex string) (func(string, string) bool, error) {
 	r, err := regexp.Compile(regex)
 
 	if err != nil {
-		// im sorry
-		panic(err)
+		return nil, err
 	}
 
 	return func(k1, k2 string) bool {
@@ -22,5 +21,5 @@ func RegexMatcher(wildcard, regex string) func(string, string) bool {
 		} else {
 			return k1 == k2
 		}
-	}
+	}, nil
 }

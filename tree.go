@@ -1,6 +1,8 @@
 package tree
 
 import (
+	"sync"
+
 	"github.com/Meduzz/tree/matchers"
 	"github.com/Meduzz/tree/parsers"
 )
@@ -20,27 +22,32 @@ type (
 		name     string
 		ref      string
 		children []*node
+		matcher  matchers.Matcher
 	}
-)
 
-var (
-	// I guess this makes us not thread safe
-	p parsers.KeyParser
-	m matchers.Matcher
+	root struct {
+		*node
+		lock   *sync.Mutex
+		parser parsers.KeyParser
+	}
 )
 
 // NewTree creates a new tree and allows for some extendability
 func NewTree(parser parsers.KeyParser, matcher matchers.Matcher) Tree {
-	p = parser
-	m = matcher
-
-	return &node{"", "", make([]*node, 0)}
+	return &root{
+		node:   &node{"", "", make([]*node, 0), matcher},
+		lock:   &sync.Mutex{},
+		parser: parser,
+	}
 }
 
-func (n *node) Add(key, ref string) {
-	keys := p(key)
-	old := n
-	match := n
+func (n *root) Add(key, ref string) {
+	n.lock.Lock()
+	defer n.lock.Unlock()
+
+	keys := n.parser(key)
+	old := n.node
+	match := n.node
 
 	// iterate keys, keep track of the last 2 matching nodes
 	for _, k := range keys {
@@ -48,7 +55,7 @@ func (n *node) Add(key, ref string) {
 		match = match.find(k)
 
 		if match == nil {
-			match = &node{k, "", make([]*node, 0)}
+			match = &node{k, "", make([]*node, 0), n.matcher}
 			old.children = append(old.children, match)
 		}
 	}
@@ -56,10 +63,13 @@ func (n *node) Add(key, ref string) {
 	match.ref = ref
 }
 
-func (n *node) Remove(key string) {
-	keys := p(key)
-	old := n
-	match := n
+func (n *root) Remove(key string) {
+	n.lock.Lock()
+	defer n.lock.Unlock()
+
+	keys := n.parser(key)
+	old := n.node
+	match := n.node
 
 	// iterate keys, keep track of the last 2 matching nodes
 	for _, k := range keys {
@@ -82,9 +92,9 @@ func (n *node) Remove(key string) {
 	old.children = keepers
 }
 
-func (n *node) Lookup(key string) string {
-	keys := p(key)
-	match := n
+func (n *root) Lookup(key string) string {
+	keys := n.parser(key)
+	match := n.node
 
 	// iterate keys, keep track of the last 2 matching nodes
 	for _, k := range keys {
@@ -104,7 +114,7 @@ func (n *node) Lookup(key string) string {
 
 func (n *node) find(key string) *node {
 	for _, c := range n.children {
-		if m(c.name, key) {
+		if n.matcher(c.name, key) {
 			return c
 		}
 	}

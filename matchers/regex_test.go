@@ -3,7 +3,11 @@ package matchers
 import "testing"
 
 func TestSomeMatching(t *testing.T) {
-	subject := RegexMatcher("*", UrlSafe)
+	subject, err := RegexMatcher("*", UrlSafe)
+
+	if err != nil {
+		t.Errorf("creating matcher threw error %s", err)
+	}
 
 	// not a wildcard
 	if !subject("k1", "k1") {

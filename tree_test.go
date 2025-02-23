@@ -12,7 +12,7 @@ func TestAdd(t *testing.T) {
 
 	candidate.Add("a/b/c", "c")
 	candidate.Add("a/d/e", "e")
-	root := candidate.(*node)
+	root := candidate.(*root)
 
 	if len(root.children) != 1 {
 		t.Errorf("expected # of children of tree to be 1 but was %d", len(root.children))
@@ -41,7 +41,7 @@ func TestRemove(t *testing.T) {
 	candidate.Add("a/b/d", "d")
 	candidate.Remove("a/b/d")
 
-	root := candidate.(*node)
+	root := candidate.(*root)
 
 	if len(root.children) != 1 {
 		t.Errorf("expected root.children to be 1 but was %d\n", len(root.children))
@@ -71,7 +71,7 @@ func TestRemoveNonExistingKey(t *testing.T) {
 	candidate.Add("a/b/c", "c")
 	candidate.Remove("a/z")
 
-	root := candidate.(*node)
+	root := candidate.(*root)
 
 	if len(root.children) != 1 {
 		t.Errorf("expected root.children to be 1 but was %d\n", len(root.children))
